@@ -81,15 +81,16 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
 
-          matches=(apps/desktop/artifacts/${{ matrix.asset_glob }})
-          if [[ ${#matches[@]} -ne 1 ]]; then
-            echo "Expected exactly one packaged file for ${{ matrix.platform }}, found ${#matches[@]}." >&2
-            printf '%s\n' "${matches[@]}" >&2
+          files=(apps/desktop/artifacts/${{ matrix.asset_glob }})
+
+          if [[ ${#files[@]} -ne 1 ]]; then
+            echo "Expected exactly one packaged asset matching '${{ matrix.asset_glob }}', found ${#files[@]}."
+            printf '%s\n' "${files[@]}"
             exit 1
           fi
 
-          echo "path=${matches[0]}" >> "$GITHUB_OUTPUT"
-          echo "name=$(basename "${matches[0]}")" >> "$GITHUB_OUTPUT"
+          echo "path=${files[0]}" >> "$GITHUB_OUTPUT"
+          echo "name=$(basename "${files[0]}")" >> "$GITHUB_OUTPUT"
 
       - name: Upload packaged artifacts
         uses: actions/upload-artifact@v4
@@ -104,20 +105,19 @@ jobs:
         shell: bash
         env:
           PLATFORM: ${{ matrix.platform }}
-          FILE_NAME: ${{ steps.packaged-asset.outputs.name }}
           ARTIFACT_NAME: desktop-${{ matrix.platform }}-${{ github.sha }}
+          ASSET_NAME: ${{ steps.packaged-asset.outputs.name }}
           RUN_ID: ${{ github.run_id }}
           COMMIT_SHA: ${{ github.sha }}
-          RELEASE_BRANCH: ${{ github.ref_name }}
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
-          {
-            echo "## Packaged artifact"
-            echo
-            echo "- Platform: \`$PLATFORM\`"
-            echo "- File: \`$FILE_NAME\`"
-            echo "- Workflow artifact: \`$ARTIFACT_NAME\`"
-            echo "- Release branch: \`$RELEASE_BRANCH\`"
-            echo "- Derived tag: \`${RELEASE_BRANCH#release/}\`"
-            echo "- Run ID: \`$RUN_ID\`"
-            echo "- Commit: \`$COMMIT_SHA\`"
-          } >> "$GITHUB_STEP_SUMMARY"
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## Packaged artifact
+
+          - Platform: $PLATFORM
+          - Uploaded artifact: $ARTIFACT_NAME
+          - Release file: $ASSET_NAME
+          - Branch: $BRANCH_NAME
+          - Run ID: $RUN_ID
+          - Commit: $COMMIT_SHA
+          EOF

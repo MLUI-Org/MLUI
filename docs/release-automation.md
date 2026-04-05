@@ -12,9 +12,9 @@ The repository now uses a two-step release flow for the Electron desktop app:
 
 2. `.github/workflows/release.yml`
    - Runs manually with `workflow_dispatch`.
-   - Resolves the latest successful `build-artifacts` run for a chosen `release/*` branch.
-   - Derives the release tag from the branch name by stripping the `release/` prefix.
-   - Downloads the workflow artifact archives, extracts the distributable file for each platform, and attaches those files to the GitHub Release.
+   - Downloads artifacts from a selected `build-artifacts` run.
+   - Derives the release tag from the source branch name by stripping the `release/` prefix.
+   - Creates a GitHub Release and attaches the distributable file for each platform.
 
 ## Operator Flow
 
@@ -29,10 +29,9 @@ Every push to a `release/*` branch produces artifacts named like:
 Each workflow job summary also records:
 
 - the platform
-- the distributable filename
-- the workflow artifact name
-- the release branch
-- the derived tag
+- the uploaded artifact name
+- the packaged release file name
+- the source branch
 - the workflow run ID
 - the commit SHA
 
@@ -46,16 +45,18 @@ The uploaded files come from `apps/desktop/artifacts` and are limited to:
 
 To publish one of those builds:
 
-1. Push commits to a branch named like `release/v0.1.0`.
-2. Wait for the `build-artifacts` workflow to complete successfully on that branch.
+1. Open the successful `build-artifacts` workflow run in GitHub Actions.
+2. Copy its run ID.
 3. Run the `release` workflow manually.
 4. Provide:
-   - `release_branch`: the branch to promote, such as `release/v0.1.0`
-   - `release_name`: optional display title for the release. If omitted, the derived tag is used.
+   - `run_id`: the build run to promote
+   - `release_name`: the display title for the release, or leave it blank to reuse the derived tag
    - `draft`: whether the release should start as a draft
    - `prerelease`: whether the release should be marked as a prerelease
 
-The workflow will promote the latest successful `build-artifacts` run for that branch and create the release against the exact commit used by that run.
+The workflow derives the tag from the selected run's branch name. For example, a source branch named `release/v0.1.0` produces the tag `v0.1.0`.
+
+The workflow will create the release against the exact commit used by the selected build run.
 
 ## Secrets
 
