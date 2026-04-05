@@ -3,17 +3,13 @@ name: release
 on:
   workflow_dispatch:
     inputs:
-      run_id:
-        description: GitHub Actions run ID from the build-artifacts workflow
-        required: true
-        type: string
-      tag_name:
-        description: Git tag to create for the release
+      release_branch:
+        description: Release branch to promote, such as release/v0.1.0
         required: true
         type: string
       release_name:
-        description: Human-friendly title for the release
-        required: true
+        description: Human-friendly title for the release. Defaults to the derived tag.
+        required: false
         type: string
       draft:
         description: Create the release as a draft
@@ -36,20 +32,99 @@ jobs:
     steps:
       - name: Resolve source run metadata
         id: source-run
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          INPUT_RELEASE_BRANCH: ${{ inputs.release_branch }}
+          INPUT_RELEASE_NAME: ${{ inputs.release_name }}
         run: |
-          echo "head_sha=$(gh api repos/${{ github.repository }}/actions/runs/${{ inputs.run_id }} --jq .head_sha)" >> "$GITHUB_OUTPUT"
-          echo "html_url=$(gh api repos/${{ github.repository }}/actions/runs/${{ inputs.run_id }} --jq .html_url)" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
 
-      - name: Download build artifacts from source run
-        uses: actions/download-artifact@v4
-        with:
-          repository: ${{ github.repository }}
-          run-id: ${{ inputs.run_id }}
-          pattern: desktop-*
-          path: release-artifacts
-          github-token: ${{ github.token }}
+          branch="$INPUT_RELEASE_BRANCH"
+          if [[ "$branch" != release/* ]]; then
+            echo "release_branch must start with release/. Received: $branch" >&2
+            exit 1
+          fi
+
+          tag_name="${branch#release/}"
+          if [[ -z "$tag_name" ]]; then
+            echo "Could not derive a tag from branch: $branch" >&2
+            exit 1
+          fi
+
+          release_name="$INPUT_RELEASE_NAME"
+          if [[ -z "$release_name" ]]; then
+            release_name="$tag_name"
+          fi
+
+          encoded_branch=$(printf '%s' "$branch" | jq -sRr @uri)
+          runs_json=$(gh api "repos/${{ github.repository }}/actions/workflows/build-artifacts.yml/runs?branch=$encoded_branch&event=push&per_page=20")
+
+          run_id=$(jq -r '.workflow_runs[] | select(.status == "completed" and .conclusion == "success") | .id' <<<"$runs_json" | head -n 1)
+          head_sha=$(jq -r '.workflow_runs[] | select(.status == "completed" and .conclusion == "success") | .head_sha' <<<"$runs_json" | head -n 1)
+          html_url=$(jq -r '.workflow_runs[] | select(.status == "completed" and .conclusion == "success") | .html_url' <<<"$runs_json" | head -n 1)
+
+          if [[ -z "$run_id" || -z "$head_sha" || -z "$html_url" ]]; then
+            echo "No successful build-artifacts run found for branch: $branch" >&2
+            exit 1
+          fi
+
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          echo "tag_name=$tag_name" >> "$GITHUB_OUTPUT"
+          echo "release_name=$release_name" >> "$GITHUB_OUTPUT"
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+          echo "html_url=$html_url" >> "$GITHUB_OUTPUT"
+
+      - name: Extract release files from build artifacts
+        id: release-files
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ steps.source-run.outputs.run_id }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p release-files artifact-downloads
+          artifacts_json=$(gh api "repos/${{ github.repository }}/actions/runs/${SOURCE_RUN_ID}/artifacts?per_page=100")
+
+          extracted_count=0
+          while IFS=$'\t' read -r artifact_name artifact_id; do
+            [[ -n "$artifact_name" ]] || continue
+
+            zip_path="artifact-downloads/${artifact_name}.zip"
+            extract_dir="artifact-downloads/${artifact_name}"
+
+            gh api "repos/${{ github.repository }}/actions/artifacts/${artifact_id}/zip" > "$zip_path"
+            unzip -q "$zip_path" -d "$extract_dir"
+
+            mapfile -t extracted_files < <(find "$extract_dir" -type f | sort)
+            if [[ ${#extracted_files[@]} -ne 1 ]]; then
+              echo "Expected exactly one file inside workflow artifact $artifact_name, found ${#extracted_files[@]}." >&2
+              printf '%s\n' "${extracted_files[@]}" >&2
+              exit 1
+            fi
+
+            cp "${extracted_files[0]}" "release-files/"
+            extracted_count=$((extracted_count + 1))
+          done < <(jq -r '.artifacts[] | select(.expired == false and (.name | startswith("desktop-"))) | [.name, (.id | tostring)] | @tsv' <<<"$artifacts_json")
+
+          if [[ $extracted_count -eq 0 ]]; then
+            echo "No desktop artifacts were found for run ${SOURCE_RUN_ID}." >&2
+            exit 1
+          fi
+
+          mapfile -t files < <(find release-files -maxdepth 1 -type f | sort)
+          if [[ ${#files[@]} -eq 0 ]]; then
+            echo "No extracted release files are available to attach." >&2
+            exit 1
+          fi
+
+          {
+            echo "files<<EOF"
+            printf '%s\n' "${files[@]}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release from selected artifacts
         shell: bash
@@ -57,22 +132,20 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           DRAFT: ${{ inputs.draft }}
           PRERELEASE: ${{ inputs.prerelease }}
-          RELEASE_NAME: ${{ inputs.release_name }}
-          TAG_NAME: ${{ inputs.tag_name }}
+          RELEASE_BRANCH: ${{ steps.source-run.outputs.branch }}
+          RELEASE_NAME: ${{ steps.source-run.outputs.release_name }}
+          TAG_NAME: ${{ steps.source-run.outputs.tag_name }}
+          SOURCE_RUN_ID: ${{ steps.source-run.outputs.run_id }}
           TARGET_SHA: ${{ steps.source-run.outputs.head_sha }}
           SOURCE_RUN_URL: ${{ steps.source-run.outputs.html_url }}
         run: |
+          set -euo pipefail
           shopt -s globstar nullglob
 
-          files=()
-          for path in release-artifacts/**/*; do
-            if [[ -f "$path" ]]; then
-              files+=("$path")
-            fi
-          done
+          mapfile -t files < <(find release-files -maxdepth 1 -type f | sort)
 
           if [[ ${#files[@]} -eq 0 ]]; then
-            echo "No release artifacts were downloaded."
+            echo "No release files were extracted."
             exit 1
           fi
 
@@ -88,8 +161,10 @@ jobs:
           Automated promotion from the continuous artifact workflow.
 
           - Source workflow run: $SOURCE_RUN_URL
+          - Source run ID: $SOURCE_RUN_ID
+          - Source branch: $RELEASE_BRANCH
           - Source commit: $TARGET_SHA
-          - Included artifacts: ${#files[@]}
+          - Included files: ${#files[@]}
           EOF
 
           gh release create "$TAG_NAME" \
@@ -102,12 +177,19 @@ jobs:
 
       - name: Add release summary
         shell: bash
+        env:
+          TAG_NAME: ${{ steps.source-run.outputs.tag_name }}
+          RELEASE_NAME: ${{ steps.source-run.outputs.release_name }}
+          SOURCE_RUN_ID: ${{ steps.source-run.outputs.run_id }}
+          SOURCE_BRANCH: ${{ steps.source-run.outputs.branch }}
+          SOURCE_COMMIT: ${{ steps.source-run.outputs.head_sha }}
         run: |
-          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
-          ## Release created
-
-          - Tag: `${{ inputs.tag_name }}`
-          - Title: `${{ inputs.release_name }}`
-          - Source run: `${{ inputs.run_id }}`
-          - Source commit: `${{ steps.source-run.outputs.head_sha }}`
-          EOF
+          {
+            echo "## Release created"
+            echo
+            echo "- Tag: \`$TAG_NAME\`"
+            echo "- Title: \`$RELEASE_NAME\`"
+            echo "- Source branch: \`$SOURCE_BRANCH\`"
+            echo "- Source run ID: \`$SOURCE_RUN_ID\`"
+            echo "- Source commit: \`$SOURCE_COMMIT\`"
+          } >> "$GITHUB_STEP_SUMMARY"

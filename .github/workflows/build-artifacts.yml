@@ -74,23 +74,50 @@ jobs:
       - name: Package desktop app
         run: bun run --cwd apps/desktop ${{ matrix.script }}
 
+      - name: Resolve packaged asset
+        id: packaged-asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          matches=(apps/desktop/artifacts/${{ matrix.asset_glob }})
+          if [[ ${#matches[@]} -ne 1 ]]; then
+            echo "Expected exactly one packaged file for ${{ matrix.platform }}, found ${#matches[@]}." >&2
+            printf '%s\n' "${matches[@]}" >&2
+            exit 1
+          fi
+
+          echo "path=${matches[0]}" >> "$GITHUB_OUTPUT"
+          echo "name=$(basename "${matches[0]}")" >> "$GITHUB_OUTPUT"
+
       - name: Upload packaged artifacts
         uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ matrix.platform }}-${{ github.sha }}
-          path: apps/desktop/artifacts/${{ matrix.asset_glob }}
+          path: ${{ steps.packaged-asset.outputs.path }}
           if-no-files-found: error
           compression-level: 0
           retention-days: 14
 
       - name: Add workflow summary
         shell: bash
+        env:
+          PLATFORM: ${{ matrix.platform }}
+          FILE_NAME: ${{ steps.packaged-asset.outputs.name }}
+          ARTIFACT_NAME: desktop-${{ matrix.platform }}-${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          RELEASE_BRANCH: ${{ github.ref_name }}
         run: |
-          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
-          ## Packaged artifact
-
-          - Platform: `${{ matrix.platform }}`
-          - Artifact: `desktop-${{ matrix.platform }}-${{ github.sha }}`
-          - Run ID: `${{ github.run_id }}`
-          - Commit: `${{ github.sha }}`
-          EOF
+          {
+            echo "## Packaged artifact"
+            echo
+            echo "- Platform: \`$PLATFORM\`"
+            echo "- File: \`$FILE_NAME\`"
+            echo "- Workflow artifact: \`$ARTIFACT_NAME\`"
+            echo "- Release branch: \`$RELEASE_BRANCH\`"
+            echo "- Derived tag: \`${RELEASE_BRANCH#release/}\`"
+            echo "- Run ID: \`$RUN_ID\`"
+            echo "- Commit: \`$COMMIT_SHA\`"
+          } >> "$GITHUB_STEP_SUMMARY"

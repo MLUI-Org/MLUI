@@ -12,8 +12,9 @@ The repository now uses a two-step release flow for the Electron desktop app:
 
 2. `.github/workflows/release.yml`
    - Runs manually with `workflow_dispatch`.
-   - Downloads artifacts from a selected `build-artifacts` run.
-   - Creates a GitHub Release and attaches the distributable file for each platform.
+   - Resolves the latest successful `build-artifacts` run for a chosen `release/*` branch.
+   - Derives the release tag from the branch name by stripping the `release/` prefix.
+   - Downloads the workflow artifact archives, extracts the distributable file for each platform, and attaches those files to the GitHub Release.
 
 ## Operator Flow
 
@@ -28,7 +29,10 @@ Every push to a `release/*` branch produces artifacts named like:
 Each workflow job summary also records:
 
 - the platform
-- the artifact name
+- the distributable filename
+- the workflow artifact name
+- the release branch
+- the derived tag
 - the workflow run ID
 - the commit SHA
 
@@ -42,17 +46,16 @@ The uploaded files come from `apps/desktop/artifacts` and are limited to:
 
 To publish one of those builds:
 
-1. Open the successful `build-artifacts` workflow run in GitHub Actions.
-2. Copy its run ID.
+1. Push commits to a branch named like `release/v0.1.0`.
+2. Wait for the `build-artifacts` workflow to complete successfully on that branch.
 3. Run the `release` workflow manually.
 4. Provide:
-   - `run_id`: the build run to promote
-   - `tag_name`: the Git tag to create, such as `v0.1.0`
-   - `release_name`: the display title for the release
+   - `release_branch`: the branch to promote, such as `release/v0.1.0`
+   - `release_name`: optional display title for the release. If omitted, the derived tag is used.
    - `draft`: whether the release should start as a draft
    - `prerelease`: whether the release should be marked as a prerelease
 
-The workflow will create the release against the exact commit used by the selected build run.
+The workflow will promote the latest successful `build-artifacts` run for that branch and create the release against the exact commit used by that run.
 
 ## Secrets
 
