@@ -1,8 +1,10 @@
 import '@mlui/litegraph/litegraph.css'
 
+import { createRoot } from 'react-dom/client'
+
 import './styles.css'
 
-import { mountDesktopApp } from './app'
+import { App } from './App'
 
 const root = document.querySelector<HTMLElement>('#app')
 
@@ -10,4 +12,4 @@ if (!root) {
   throw new Error('Renderer root element was not found.')
 }
 
-void mountDesktopApp(root)
+createRoot(root).render(<App />)

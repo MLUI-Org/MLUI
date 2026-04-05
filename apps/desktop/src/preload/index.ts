@@ -7,6 +7,12 @@ const desktopApi = {
     load: () => ipcRenderer.invoke('profile:load') as Promise<UserProfile>,
     save: (profile: UserProfile) =>
       ipcRenderer.invoke('profile:save', profile) as Promise<UserProfile>
+  },
+  window: {
+    minimize: () => ipcRenderer.invoke('window:minimize') as Promise<void>,
+    toggleMaximize: () =>
+      ipcRenderer.invoke('window:toggle-maximize') as Promise<boolean>,
+    close: () => ipcRenderer.invoke('window:close') as Promise<void>
   }
 }
 

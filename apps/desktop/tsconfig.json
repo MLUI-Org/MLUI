@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "jsx": "react-jsx",
     "types": ["node", "vitest/globals"],
     "paths": {
       "@desktop/*": ["./src/*"]
@@ -9,6 +10,7 @@
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.tsx",
     "vite.config.ts",
     "vitest.config.ts"
   ],

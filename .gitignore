@@ -3,6 +3,7 @@ node_modules
 coverage
 dist
 artifacts
+artifacts-local
 release
 *.tsbuildinfo
 

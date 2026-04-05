@@ -7,12 +7,13 @@
   "author": "MLUI",
   "main": "./dist/main/index.js",
   "scripts": {
-    "build": "bun run build:main && bun run build:preload && vite build",
+    "build": "bun run build:main && bun run build:preload && vite build && bun run copy:sql-wasm",
     "build:main": "bun build src/main/index.ts --outfile dist/main/index.js --target node --format esm --external electron --external sql.js",
-    "build:preload": "bun build src/preload/index.ts --outfile dist/preload/index.js --target node --format esm --external electron",
+    "build:preload": "bun build src/preload/index.ts --outfile dist/preload/index.cjs --target node --format cjs --external electron",
+    "copy:sql-wasm": "bun run scripts/copy-sql-wasm.ts",
     "clean:release": "rimraf artifacts",
     "package": "bun run clean:release && bun run build && electron-builder --publish never",
-    "package:dir": "bun run clean:release && bun run build && electron-builder --dir --publish never",
+    "package:dir": "bun run build && electron-builder --dir --publish never",
     "package:win": "bun run clean:release && bun run build && electron-builder --win portable zip --publish never",
     "package:linux": "bun run clean:release && bun run build && electron-builder --linux AppImage tar.gz --publish never",
     "package:mac": "bun run clean:release && bun run build && electron-builder --mac zip --publish never",
@@ -30,9 +31,13 @@
   "dependencies": {
     "@mlui/litegraph": "workspace:*",
     "effect": "^3.21.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "sql.js": "^1.14.1"
   },
   "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "electron": "^41.1.1",

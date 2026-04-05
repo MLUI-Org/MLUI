@@ -29,11 +29,12 @@ export class UserProfileStore {
     `)
   }
 
-  static async create(dbPath: string, assetBasePath = process.cwd()) {
+  static async create(dbPath: string, wasmPath?: string) {
     await mkdir(dirname(dbPath), { recursive: true })
 
     const SQL = await initSqlJs({
-      locateFile: () => join(assetBasePath, 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm')
+      locateFile: () =>
+        wasmPath ?? join(process.cwd(), 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm')
     })
 
     const db = (await fileExists(dbPath))

@@ -19,6 +19,9 @@ declare module '@mlui/litegraph' {
   export class LGraphCanvas {
     background_image: string | null
     render_connections_border: boolean
+    getCanvasMenuOptions: () => unknown[]
+    getNodeMenuOptions: (node: LGraphNode) => unknown[]
+    processContextMenu: (node: LGraphNode | undefined, event: MouseEvent) => void
 
     constructor(canvas: HTMLCanvasElement, graph: LGraph)
 
