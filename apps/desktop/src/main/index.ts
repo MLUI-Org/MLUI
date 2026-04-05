@@ -2,9 +2,6 @@ import { app, BrowserWindow, ipcMain, Menu } from 'electron'
 import { appendFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
-import { DEFAULT_USER_PROFILE } from '../shared/userProfile'
-import { loadUserProfile, saveUserProfile } from './userProfileState'
-
 const devServerUrl = process.env.MLUI_DESKTOP_DEV_SERVER_URL
 let mainWindow: BrowserWindow | null = null
 
@@ -117,14 +114,6 @@ async function bootstrap() {
   log('Bootstrap start')
   Menu.setApplicationMenu(null)
 
-  ipcMain.handle('profile:load', async () => {
-    return loadUserProfile()
-  })
-
-  ipcMain.handle('profile:save', async (_, nextProfile) => {
-    return saveUserProfile(nextProfile)
-  })
-
   ipcMain.handle('window:minimize', () => {
     mainWindow?.minimize()
   })
@@ -144,7 +133,6 @@ async function bootstrap() {
   })
 
   await createWindow()
-  log(`Stateless profile mode enabled for ${DEFAULT_USER_PROFILE.id}`)
 }
 
 process.on('uncaughtException', (error) => {

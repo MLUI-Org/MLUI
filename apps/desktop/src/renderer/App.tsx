@@ -9,7 +9,7 @@ import {
 
 class NumberSourceNode extends LGraphNode {
   constructor() {
-    super('Profile Seed')
+    super('Number Source')
     this.pos = [80, 120]
     this.addOutput('value', 'number')
     this.properties.seed = 7
@@ -29,8 +29,8 @@ class NumberSinkNode extends LGraphNode {
 }
 
 function ensureDemoNodesRegistered() {
-  if (!LiteGraph.registered_node_types['mlui/profile-seed']) {
-    LiteGraph.registerNodeType('mlui/profile-seed', NumberSourceNode)
+  if (!LiteGraph.registered_node_types['mlui/number-source']) {
+    LiteGraph.registerNodeType('mlui/number-source', NumberSourceNode)
   }
 
   if (!LiteGraph.registered_node_types['mlui/debug-sink']) {
