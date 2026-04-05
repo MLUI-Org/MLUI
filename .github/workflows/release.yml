@@ -1,0 +1,113 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: GitHub Actions run ID from the build-artifacts workflow
+        required: true
+        type: string
+      tag_name:
+        description: Git tag to create for the release
+        required: true
+        type: string
+      release_name:
+        description: Human-friendly title for the release
+        required: true
+        type: string
+      draft:
+        description: Create the release as a draft
+        required: true
+        default: true
+        type: boolean
+      prerelease:
+        description: Mark the release as a prerelease
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  promote-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve source run metadata
+        id: source-run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "head_sha=$(gh api repos/${{ github.repository }}/actions/runs/${{ inputs.run_id }} --jq .head_sha)" >> "$GITHUB_OUTPUT"
+          echo "html_url=$(gh api repos/${{ github.repository }}/actions/runs/${{ inputs.run_id }} --jq .html_url)" >> "$GITHUB_OUTPUT"
+
+      - name: Download build artifacts from source run
+        uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.run_id }}
+          pattern: desktop-*
+          path: release-artifacts
+          github-token: ${{ github.token }}
+
+      - name: Create GitHub Release from selected artifacts
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRAFT: ${{ inputs.draft }}
+          PRERELEASE: ${{ inputs.prerelease }}
+          RELEASE_NAME: ${{ inputs.release_name }}
+          TAG_NAME: ${{ inputs.tag_name }}
+          TARGET_SHA: ${{ steps.source-run.outputs.head_sha }}
+          SOURCE_RUN_URL: ${{ steps.source-run.outputs.html_url }}
+        run: |
+          shopt -s globstar nullglob
+
+          files=()
+          for path in release-artifacts/**/*; do
+            if [[ -f "$path" ]]; then
+              files+=("$path")
+            fi
+          done
+
+          if [[ ${#files[@]} -eq 0 ]]; then
+            echo "No release artifacts were downloaded."
+            exit 1
+          fi
+
+          release_args=()
+          if [[ "$DRAFT" == "true" ]]; then
+            release_args+=("--draft")
+          fi
+          if [[ "$PRERELEASE" == "true" ]]; then
+            release_args+=("--prerelease")
+          fi
+
+          cat <<EOF > release-notes.md
+          Automated promotion from the continuous artifact workflow.
+
+          - Source workflow run: $SOURCE_RUN_URL
+          - Source commit: $TARGET_SHA
+          - Included artifacts: ${#files[@]}
+          EOF
+
+          gh release create "$TAG_NAME" \
+            --repo "${{ github.repository }}" \
+            --target "$TARGET_SHA" \
+            --title "$RELEASE_NAME" \
+            --notes-file release-notes.md \
+            "${release_args[@]}" \
+            "${files[@]}"
+
+      - name: Add release summary
+        shell: bash
+        run: |
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## Release created
+
+          - Tag: `${{ inputs.tag_name }}`
+          - Title: `${{ inputs.release_name }}`
+          - Source run: `${{ inputs.run_id }}`
+          - Source commit: `${{ steps.source-run.outputs.head_sha }}`
+          EOF

@@ -2,13 +2,29 @@
   "appId": "com.mlui.desktop",
   "productName": "MLUI Desktop",
   "directories": {
-    "output": "release"
+    "output": "artifacts"
   },
   "files": [
     "dist/**/*",
     "package.json"
   ],
+  "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
-    "target": ["dir"]
+    "target": [
+      "portable",
+      "zip"
+    ]
+  },
+  "linux": {
+    "target": [
+      "AppImage",
+      "tar.gz"
+    ],
+    "category": "Development"
+  },
+  "mac": {
+    "target": [
+      "zip"
+    ]
   }
 }

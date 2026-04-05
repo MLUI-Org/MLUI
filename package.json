@@ -25,13 +25,18 @@
     "dev": "turbo run dev",
     "start": "turbo run start",
     "build": "turbo run build",
+    "package:desktop": "bun run --cwd apps/desktop package",
+    "package:desktop:dir": "bun run --cwd apps/desktop package:dir",
+    "package:desktop:win": "bun run --cwd apps/desktop package:win",
+    "package:desktop:linux": "bun run --cwd apps/desktop package:linux",
+    "package:desktop:mac": "bun run --cwd apps/desktop package:mac",
     "build:win": "bun run --cwd apps/desktop build:win",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "fmt": "turbo run fmt",
     "fmt:check": "turbo run fmt:check",
-    "clean": "rimraf node_modules .turbo apps/*/node_modules apps/*/dist apps/*/release packages/*/node_modules packages/*/dist"
+    "clean": "rimraf node_modules .turbo apps/*/node_modules apps/*/dist apps/*/artifacts apps/*/release packages/*/node_modules packages/*/dist"
   },
   "devDependencies": {
     "@types/node": "catalog:",

@@ -1,0 +1,93 @@
+name: build-artifacts
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: build-artifacts-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.9"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Test
+        run: bun run test
+
+      - name: Build workspace
+        run: bun run build
+
+  package-desktop:
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            runner: windows-latest
+            script: package:win
+          - platform: macos
+            runner: macos-latest
+            script: package:mac
+          - platform: linux
+            runner: ubuntu-latest
+            script: package:linux
+    runs-on: ${{ matrix.runner }}
+    env:
+      TURBO_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.9"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Package desktop app
+        run: bun run --cwd apps/desktop ${{ matrix.script }}
+
+      - name: Upload packaged artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.platform }}-${{ github.sha }}
+          path: apps/desktop/artifacts/**
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+
+      - name: Add workflow summary
+        shell: bash
+        run: |
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## Packaged artifact
+
+          - Platform: `${{ matrix.platform }}`
+          - Artifact: `desktop-${{ matrix.platform }}-${{ github.sha }}`
+          - Run ID: `${{ github.run_id }}`
+          - Commit: `${{ github.sha }}`
+          EOF
