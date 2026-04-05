@@ -1,0 +1,81 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "outDir": "dist",
+    "types": ["node", "vitest/globals"],
+    "paths": {
+      "@/lib/litegraph/src/*": ["./src/*"],
+      "@/constants/groupNodeConstants": [
+        "./src/compat/constants/groupNodeConstants.ts"
+      ],
+      "@/renderer/core/canvas/useAutoPan": [
+        "./src/compat/renderer/core/canvas/useAutoPan.ts"
+      ],
+      "@/renderer/core/canvas/litegraph/litegraphLinkAdapter": [
+        "./src/compat/renderer/core/canvas/litegraph/litegraphLinkAdapter.ts"
+      ],
+      "@/renderer/core/canvas/litegraph/slotCalculations": [
+        "./src/compat/renderer/core/canvas/litegraph/slotCalculations.ts"
+      ],
+      "@/renderer/core/layout/operations/layoutMutations": [
+        "./src/compat/renderer/core/layout/operations/layoutMutations.ts"
+      ],
+      "@/renderer/core/layout/store/layoutStore": [
+        "./src/compat/renderer/core/layout/store/layoutStore.ts"
+      ],
+      "@/renderer/core/layout/types": [
+        "./src/compat/renderer/core/layout/types.ts"
+      ],
+      "@/core/graph/subgraph/promotedWidgetTypes": [
+        "./src/compat/core/graph/subgraph/promotedWidgetTypes.ts"
+      ],
+      "@/core/graph/subgraph/promotedWidgetView": [
+        "./src/compat/core/graph/subgraph/promotedWidgetView.ts"
+      ],
+      "@/core/graph/subgraph/legacyProxyWidgetNormalization": [
+        "./src/compat/core/graph/subgraph/legacyProxyWidgetNormalization.ts"
+      ],
+      "@/core/graph/subgraph/resolveConcretePromotedWidget": [
+        "./src/compat/core/graph/subgraph/resolveConcretePromotedWidget.ts"
+      ],
+      "@/core/graph/subgraph/resolveSubgraphInputTarget": [
+        "./src/compat/core/graph/subgraph/resolveSubgraphInputTarget.ts"
+      ],
+      "@/core/graph/subgraph/widgetNodeTypeGuard": [
+        "./src/compat/core/graph/subgraph/widgetNodeTypeGuard.ts"
+      ],
+      "@/core/schemas/promotionSchema": [
+        "./src/compat/core/schemas/promotionSchema.ts"
+      ],
+      "@/composables/node/canvasImagePreviewTypes": [
+        "./src/compat/composables/node/canvasImagePreviewTypes.ts"
+      ],
+      "@/stores/promotionStore": ["./src/compat/stores/promotionStore.ts"],
+      "@/stores/widgetValueStore": [
+        "./src/compat/stores/widgetValueStore.ts"
+      ],
+      "@/stores/domWidgetStore": ["./src/compat/stores/domWidgetStore.ts"],
+      "@/utils/graphTraversalUtil": [
+        "./src/compat/utils/graphTraversalUtil.ts"
+      ],
+      "@/utils/colorUtil": ["./src/compat/utils/colorUtil.ts"],
+      "@/utils/__tests__/litegraphTestUtils": [
+        "./src/test-utils/litegraphTestUtils.ts"
+      ],
+      "@/components/curve/types": ["./src/compat/components/curve/types.ts"],
+      "@/i18n": ["./src/compat/i18n.ts"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "scripts/**/*.ts",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ],
+  "exclude": [
+    "dist",
+    "src/**/*.test.ts"
+  ]
+}

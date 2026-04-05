@@ -1,0 +1,38 @@
+{
+  "name": "@mlui/litegraph",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./litegraph.css": "./dist/litegraph.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && bun run scripts/copy-css.ts",
+    "dev": "vite build --watch",
+    "typecheck": "tsc -p tsconfig.tooling.json --noEmit",
+    "lint": "oxlint --config ../../.oxlintrc.json build scripts src/compat src/standalone.smoke.test.ts",
+    "fmt": "oxfmt --write build scripts src/compat src/standalone.smoke.test.ts vite.config.ts vitest.config.ts package.json tsconfig.json tsconfig.scaffold.json tsconfig.tooling.json",
+    "fmt:check": "oxfmt --check build scripts src/compat src/standalone.smoke.test.ts vite.config.ts vitest.config.ts package.json tsconfig.json tsconfig.scaffold.json tsconfig.tooling.json",
+    "test": "vitest run src/standalone.smoke.test.ts"
+  },
+  "dependencies": {
+    "dompurify": "^3.3.3",
+    "es-toolkit": "^1.45.1",
+    "vue": "^3.5.32"
+  },
+  "devDependencies": {
+    "jsdom": "^29.0.1",
+    "vite": "^8.0.3",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^4.1.2"
+  }
+}

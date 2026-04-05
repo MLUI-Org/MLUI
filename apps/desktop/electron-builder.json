@@ -1,0 +1,14 @@
+{
+  "appId": "com.mlui.desktop",
+  "productName": "MLUI Desktop",
+  "directories": {
+    "output": "release"
+  },
+  "files": [
+    "dist/**/*",
+    "package.json"
+  ],
+  "win": {
+    "target": ["dir"]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "ignorePatterns": [
+    "node_modules/**",
+    ".turbo/**",
+    "dist/**",
+    "release/**",
+    "coverage/**"
+  ]
+}

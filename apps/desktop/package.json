@@ -1,0 +1,38 @@
+{
+  "name": "@mlui/desktop",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Electron desktop shell for the MLUI LiteGraph workspace.",
+  "author": "MLUI",
+  "main": "./dist/main/index.js",
+  "scripts": {
+    "build": "bun run build:main && bun run build:preload && vite build",
+    "build:main": "bun build src/main/index.ts --outfile dist/main/index.js --target node --format esm --external electron --external sql.js",
+    "build:preload": "bun build src/preload/index.ts --outfile dist/preload/index.js --target node --format esm --external electron",
+    "build:win": "bun run build && electron-builder --win dir",
+    "dev": "concurrently -k \"bun run dev:renderer\" \"bun run dev:electron\"",
+    "dev:renderer": "vite --host 127.0.0.1 --port 5173",
+    "dev:electron": "wait-on tcp:5173 && bun run build:main && bun run build:preload && cross-env MLUI_DESKTOP_DEV_SERVER_URL=http://127.0.0.1:5173 electron dist/main/index.js",
+    "start": "bun run build && electron dist/main/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "oxlint --config ../../.oxlintrc.json src",
+    "fmt": "oxfmt --write src vite.config.ts vitest.config.ts tsconfig.json package.json electron-builder.json index.html",
+    "fmt:check": "oxfmt --check src vite.config.ts vitest.config.ts tsconfig.json package.json electron-builder.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@mlui/litegraph": "workspace:*",
+    "effect": "^3.21.0",
+    "sql.js": "^1.14.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^41.1.1",
+    "electron-builder": "^26.8.1",
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2",
+    "wait-on": "^9.0.4"
+  }
+}
