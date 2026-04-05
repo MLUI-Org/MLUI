@@ -5,21 +5,21 @@
 The repository now uses a two-step release flow for the Electron desktop app:
 
 1. `.github/workflows/build-artifacts.yml`
-   - Runs automatically on every push to `main`.
+   - Runs automatically on every push to `release/*` branches.
    - Verifies the workspace with Bun, Turbo, Vitest, and OXC.
-   - Builds desktop artifacts on Windows, macOS, and Linux.
-   - Uploads each platform build as a GitHub Actions artifact.
+   - Builds desktop release outputs on Windows, macOS, and Linux.
+   - Uploads the primary distributable for each platform as a GitHub Actions artifact.
 
 2. `.github/workflows/release.yml`
    - Runs manually with `workflow_dispatch`.
    - Downloads artifacts from a selected `build-artifacts` run.
-   - Creates a GitHub Release and attaches those artifacts.
+   - Creates a GitHub Release and attaches the distributable file for each platform.
 
 ## Operator Flow
 
-### Continuous artifacts on `main`
+### Continuous artifacts on `release/*`
 
-Every push to `main` produces artifacts named like:
+Every push to a `release/*` branch produces artifacts named like:
 
 - `desktop-windows-<sha>`
 - `desktop-macos-<sha>`
@@ -32,7 +32,11 @@ Each workflow job summary also records:
 - the workflow run ID
 - the commit SHA
 
-The packaged files are collected from `apps/desktop/artifacts` before being uploaded to GitHub Actions.
+The uploaded files come from `apps/desktop/artifacts` and are limited to:
+
+- Windows: portable `.exe`
+- macOS: `.zip`
+- Linux: `.AppImage`
 
 ### Promote a build into a Release
 

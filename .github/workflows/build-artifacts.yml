@@ -3,7 +3,7 @@ name: build-artifacts
 on:
   push:
     branches:
-      - main
+      - 'release/**'
   workflow_dispatch:
 
 concurrency:
@@ -49,12 +49,15 @@ jobs:
           - platform: windows
             runner: windows-latest
             script: package:win
+            asset_glob: "*.exe"
           - platform: macos
             runner: macos-latest
             script: package:mac
+            asset_glob: "*.zip"
           - platform: linux
             runner: ubuntu-latest
             script: package:linux
+            asset_glob: "*.AppImage"
     runs-on: ${{ matrix.runner }}
     env:
       TURBO_TELEMETRY_DISABLED: "1"
@@ -75,7 +78,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ matrix.platform }}-${{ github.sha }}
-          path: apps/desktop/artifacts/**
+          path: apps/desktop/artifacts/${{ matrix.asset_glob }}
           if-no-files-found: error
           compression-level: 0
           retention-days: 14
