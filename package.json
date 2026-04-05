@@ -1,0 +1,60 @@
+{
+    "name": "@",
+    "private": true,
+    "workspaces": {
+      "packages": [
+        "apps/*",
+        "packages/*",
+        "scripts"
+      ],
+      "catalog": {
+        "effect": "4.0.0-beta.43",
+        "@effect/atom-react": "4.0.0-beta.43",
+        "@effect/platform-bun": "4.0.0-beta.43",
+        "@effect/platform-node": "4.0.0-beta.43",
+        "@effect/sql-sqlite-bun": "4.0.0-beta.43",
+        "@effect/vitest": "4.0.0-beta.43",
+        "@effect/language-service": "0.84.2",
+        "@types/bun": "^1.3.9",
+        "@types/node": "^24.10.13",
+        "tsdown": "^0.20.3",
+        "typescript": "^5.7.3",
+        "vitest": "^4.0.0"
+      }
+    },
+    "type": "module",
+    "scripts": {
+      "dev": "turbo run dev",
+      "start": "turbo run start",
+      "build": "turbo run build",
+      "typecheck": "turbo run typecheck",
+      "lint": "oxlint --report-unused-disable-directives",
+      "test": "turbo run test",
+      "fmt": "oxfmt",
+      "fmt:check": "oxfmt --check",
+      "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules apps/*/dist apps/*/dist-electron packages/*/dist .turbo apps/*/.turbo packages/*/.turbo",
+    },
+    "devDependencies": {
+      "@types/node": "catalog:",
+      "oxfmt": "^0.40.0",
+      "oxlint": "^1.55.0",
+      "turbo": "^2.3.3",
+      "vitest": "catalog:"
+    },
+    "overrides": {
+      "vite": "^8.0.0"
+    },
+    "engines": {
+      "bun": "^1.3.9",
+      "node": "^24.13.1"
+    },
+    "packageManager": "bun@1.3.9",
+    "msw": {
+      "workerDirectory": [
+        "apps/web/public"
+      ]
+    },
+    "trustedDependencies": [
+      "node-pty"
+    ]
+  }
