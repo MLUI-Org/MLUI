@@ -26,7 +26,7 @@ declare module '@mlui/litegraph' {
     constructor(canvas: HTMLCanvasElement, graph: LGraph)
 
     draw(fgCanvas?: boolean, bgCanvas?: boolean): void
-    resize(): void
+    resize(width?: number, height?: number): void
     setDirty(fgCanvas: boolean, bgCanvas?: boolean): void
   }
 

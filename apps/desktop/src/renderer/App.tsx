@@ -135,15 +135,6 @@ export function App() {
 
     window.addEventListener('contextmenu', preventContextMenu)
     window.addEventListener('resize', scheduleResize)
-
-    void window.mlui.profile.load().then((profile) =>
-      window.mlui.profile.save({
-        ...profile,
-        lastGraphName: 'Getting Started',
-        updatedAt: Date.now()
-      })
-    )
-
     return () => {
       resizeObserver.disconnect()
       window.removeEventListener('contextmenu', preventContextMenu)

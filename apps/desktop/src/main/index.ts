@@ -3,11 +3,10 @@ import { appendFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
 import { DEFAULT_USER_PROFILE } from '../shared/userProfile'
-import { UserProfileStore } from './persistence/userProfileStore'
+import { loadUserProfile, saveUserProfile } from './userProfileState'
 
 const devServerUrl = process.env.MLUI_DESKTOP_DEV_SERVER_URL
 let mainWindow: BrowserWindow | null = null
-let userProfileStore: UserProfileStore | null = null
 
 function getLogFilePath() {
   return join(app.getPath('userData'), 'desktop.log')
@@ -27,10 +26,6 @@ function getPreloadPath() {
 
 function getRendererIndexPath() {
   return join(app.getAppPath(), 'dist', 'renderer', 'index.html')
-}
-
-function getSqlWasmPath() {
-  return join(app.getAppPath(), 'dist', 'sql-wasm.wasm')
 }
 
 async function showFatalError(message: string, error?: unknown) {
@@ -123,11 +118,11 @@ async function bootstrap() {
   Menu.setApplicationMenu(null)
 
   ipcMain.handle('profile:load', async () => {
-    return (await userProfileStore?.load()) || DEFAULT_USER_PROFILE
+    return loadUserProfile()
   })
 
   ipcMain.handle('profile:save', async (_, nextProfile) => {
-    return (await userProfileStore?.save(nextProfile)) || DEFAULT_USER_PROFILE
+    return saveUserProfile(nextProfile)
   })
 
   ipcMain.handle('window:minimize', () => {
@@ -149,17 +144,7 @@ async function bootstrap() {
   })
 
   await createWindow()
-
-  try {
-    const dbPath = join(app.getPath('userData'), 'mlui-user-profile.sqlite')
-    const wasmPath = getSqlWasmPath()
-    log(`Initializing persistence with db: ${dbPath}`)
-    log(`Using sql.js wasm: ${wasmPath}`)
-    userProfileStore = await UserProfileStore.create(dbPath, wasmPath)
-    log('Persistence ready')
-  } catch (error) {
-    log('Persistence initialization failed', error)
-  }
+  log(`Stateless profile mode enabled for ${DEFAULT_USER_PROFILE.id}`)
 }
 
 process.on('uncaughtException', (error) => {
@@ -187,10 +172,6 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     void createWindow()
   }
-})
-
-app.on('before-quit', () => {
-  userProfileStore?.close()
 })
 
 function escapeHtml(value: string) {

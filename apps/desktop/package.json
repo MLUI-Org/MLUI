@@ -7,10 +7,9 @@
   "author": "MLUI",
   "main": "./dist/main/index.js",
   "scripts": {
-    "build": "bun run build:main && bun run build:preload && vite build && bun run copy:sql-wasm",
-    "build:main": "bun build src/main/index.ts --outfile dist/main/index.js --target node --format esm --external electron --external sql.js",
+    "build": "bun run build:main && bun run build:preload && vite build",
+    "build:main": "bun build src/main/index.ts --outfile dist/main/index.js --target node --format esm --external electron",
     "build:preload": "bun build src/preload/index.ts --outfile dist/preload/index.cjs --target node --format cjs --external electron",
-    "copy:sql-wasm": "bun run scripts/copy-sql-wasm.ts",
     "clean:release": "rimraf artifacts",
     "package": "bun run clean:release && bun run build && electron-builder --publish never",
     "package:dir": "bun run build && electron-builder --dir --publish never",
@@ -32,8 +31,7 @@
     "@mlui/litegraph": "workspace:*",
     "effect": "^3.21.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "sql.js": "^1.14.1"
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@types/react": "^19.2.14",

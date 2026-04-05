@@ -17,7 +17,3 @@ Thumbs.db
 apps/*/dist
 apps/*/release
 packages/*/dist
-
-*.sqlite
-*.sqlite-shm
-*.sqlite-wal
