@@ -1,10 +1,10 @@
 {
   "name": "@mlui/desktop",
-  "private": true,
-  "type": "module",
   "version": "0.1.0",
+  "private": true,
   "description": "Electron desktop shell for the MLUI LiteGraph workspace.",
   "author": "MLUI",
+  "type": "module",
   "main": "./dist/main/index.js",
   "scripts": {
     "build": "bun run build:main && bun run build:preload && vite build",
@@ -29,6 +29,8 @@
   },
   "dependencies": {
     "@mlui/litegraph": "workspace:*",
+    "@mlui/litegraph-addons": "workspace:*",
+    "@mlui/litegraph-nodes": "workspace:*",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },

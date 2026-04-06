@@ -1,0 +1,16 @@
+{
+  "name": "@mlui/litegraph-nodes",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reusable LiteGraph node classes for MLUI.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@mlui/litegraph": "workspace:*"
+  }
+}

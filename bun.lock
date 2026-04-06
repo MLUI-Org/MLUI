@@ -19,6 +19,8 @@
       "version": "0.1.0",
       "dependencies": {
         "@mlui/litegraph": "workspace:*",
+        "@mlui/litegraph-addons": "workspace:*",
+        "@mlui/litegraph-nodes": "workspace:*",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
       },
@@ -46,6 +48,21 @@
         "vite": "^8.0.3",
         "vite-plugin-dts": "^4.5.4",
         "vitest": "^4.1.2",
+      },
+    },
+    "packages/litegraph-addons": {
+      "name": "@mlui/litegraph-addons",
+      "version": "0.1.0",
+      "dependencies": {
+        "@mlui/litegraph": "workspace:*",
+        "@mlui/litegraph-nodes": "workspace:*",
+      },
+    },
+    "packages/litegraph-nodes": {
+      "name": "@mlui/litegraph-nodes",
+      "version": "0.1.0",
+      "dependencies": {
+        "@mlui/litegraph": "workspace:*",
       },
     },
   },
@@ -153,6 +170,10 @@
     "@mlui/desktop": ["@mlui/desktop@workspace:apps/desktop"],
 
     "@mlui/litegraph": ["@mlui/litegraph@workspace:packages/litegraph"],
+
+    "@mlui/litegraph-addons": ["@mlui/litegraph-addons@workspace:packages/litegraph-addons"],
+
+    "@mlui/litegraph-nodes": ["@mlui/litegraph-nodes@workspace:packages/litegraph-nodes"],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.2", "", { "dependencies": { "@tybys/wasm-util": "^0.10.1" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-sNXv5oLJ7ob93xkZ1XnxisYhGYXfaG9f65/ZgYuAu3qt7b3NadcOEhLvx28hv31PgX8SZJRYrAIPQilQmFpLVw=="],
 

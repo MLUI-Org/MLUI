@@ -6,6 +6,10 @@ const desktopApi = {
     toggleMaximize: () =>
       ipcRenderer.invoke('window:toggle-maximize') as Promise<boolean>,
     close: () => ipcRenderer.invoke('window:close') as Promise<void>
+  },
+  workflow: {
+    writePython: (content: string) =>
+      ipcRenderer.invoke('workflow:write-python', content) as Promise<string>
   }
 }
 

@@ -5,17 +5,12 @@
     "jsx": "react-jsx",
     "types": ["node", "vitest/globals"],
     "paths": {
-      "@desktop/*": ["./src/*"]
+      "@desktop/*": ["./src/*"],
+      "@mlui/litegraph": ["../../packages/litegraph/dist/litegraph.d.ts"],
+      "@mlui/litegraph-addons": ["../../packages/litegraph-addons/src/index.ts"],
+      "@mlui/litegraph-nodes": ["../../packages/litegraph-nodes/src/index.ts"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "vite.config.ts",
-    "vitest.config.ts"
-  ],
-  "exclude": [
-    "dist",
-    "release"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "vitest.config.ts"],
+  "exclude": ["dist", "release"]
 }

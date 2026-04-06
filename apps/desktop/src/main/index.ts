@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain, Menu } from 'electron'
-import { appendFile, mkdir } from 'node:fs/promises'
+import { appendFile, mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const devServerUrl = process.env.MLUI_DESKTOP_DEV_SERVER_URL
@@ -130,6 +130,13 @@ async function bootstrap() {
 
   ipcMain.handle('window:close', () => {
     mainWindow?.close()
+  })
+
+  ipcMain.handle('workflow:write-python', async (_event, content: string) => {
+    const outputPath = join(app.getPath('userData'), 'compiled_workflow.py')
+    await writeFile(outputPath, content, 'utf8')
+    log(`Compiled workflow written: ${outputPath}`)
+    return outputPath
   })
 
   await createWindow()

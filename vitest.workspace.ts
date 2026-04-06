@@ -1,6 +1,11 @@
-import { defineWorkspace } from 'vitest/config'
+import { defineConfig } from 'vitest/config'
 
-export default defineWorkspace([
-  'packages/litegraph/vitest.config.ts',
-  'apps/desktop/vitest.config.ts'
-])
+export default defineConfig({
+  test: {
+    projects: [
+      'packages/litegraph/vitest.config.ts',
+      'packages/litegraph-nodes/vitest.config.ts',
+      'apps/desktop/vitest.config.ts'
+    ]
+  }
+})

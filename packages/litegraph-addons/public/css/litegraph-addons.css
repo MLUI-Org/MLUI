@@ -1,0 +1,291 @@
+.litegraph-selection-addon {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.litegraph-selection-addon[hidden] {
+  display: none;
+}
+
+.litegraph-selection-addon__outline {
+  position: absolute;
+  border: 1px dashed rgba(255, 255, 255, 0.78);
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 0 0 1px rgba(15, 23, 42, 0.42);
+}
+
+.litegraph-selection-addon__popover {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.litegraph-selection-addon__toolbar {
+  display: inline-flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.94), rgba(15, 23, 42, 0.96));
+  box-shadow:
+    0 18px 36px rgba(2, 6, 23, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px);
+}
+
+.litegraph-selection-addon__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(226, 232, 240, 0.84);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    opacity 120ms ease;
+}
+
+.litegraph-selection-addon__button + .litegraph-selection-addon__button {
+  border-left: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.litegraph-selection-addon__button:hover:not(:disabled) {
+  background: rgba(148, 163, 184, 0.12);
+  color: #f8fafc;
+}
+
+.litegraph-selection-addon__button[data-active="true"] {
+  background: rgba(148, 163, 184, 0.14);
+  color: #f8fafc;
+}
+
+.litegraph-selection-addon__button:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.litegraph-selection-addon__button svg {
+  width: 17px;
+  height: 17px;
+}
+
+.litegraph-selection-addon__icon-image {
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.litegraph-selection-addon__color-button {
+  gap: 6px;
+  width: auto;
+  min-width: 54px;
+  padding: 0 12px;
+}
+
+.litegraph-selection-addon__swatch {
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  background: var(--litegraph-selection-swatch, #7c3aed);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.litegraph-selection-addon__swatch[data-mixed="true"] {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0 18%,
+    rgba(148, 163, 184, 0.4) 18% 50%,
+    rgba(99, 102, 241, 0.75) 50% 82%,
+    rgba(30, 41, 59, 0.95) 82% 100%
+  );
+}
+
+.litegraph-selection-addon__chevron {
+  opacity: 0.72;
+  transition: transform 120ms ease;
+}
+
+.litegraph-selection-addon__button[data-active="true"] .litegraph-selection-addon__chevron {
+  transform: rotate(180deg);
+}
+
+.litegraph-selection-addon__panel {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 176px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+  box-shadow:
+    0 16px 34px rgba(2, 6, 23, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px);
+}
+
+.litegraph-selection-addon__panel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.78);
+  color: rgba(226, 232, 240, 0.86);
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease;
+}
+
+.litegraph-selection-addon__panel-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.litegraph-selection-addon__panel-button[data-current="true"] {
+  border-color: rgba(255, 255, 255, 0.48);
+}
+
+.litegraph-selection-addon__panel-button[data-clear="true"] {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.88) 0 46%,
+    rgba(248, 113, 113, 0.86) 46% 54%,
+    rgba(15, 23, 42, 0.88) 54% 100%
+  );
+}
+
+.litegraph-selection-addon__panel-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--litegraph-selection-swatch, #7c3aed);
+}
+
+.litegraph-code-addon {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.litegraph-code-addon[hidden] {
+  display: none;
+}
+
+.litegraph-code-addon__editor {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.litegraph-code-addon__editor[data-focused="true"] .litegraph-code-addon__surface {
+  border-color: rgba(96, 165, 250, 0.42);
+  box-shadow:
+    0 18px 36px rgba(2, 6, 23, 0.4),
+    inset 0 0 0 1px rgba(96, 165, 250, 0.22);
+}
+
+.litegraph-code-addon__surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.98)),
+    linear-gradient(90deg, rgba(30, 41, 59, 0.28), rgba(15, 23, 42, 0));
+  box-shadow:
+    0 18px 36px rgba(2, 6, 23, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.litegraph-code-addon__syntax,
+.litegraph-code-addon__textarea {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 14px 16px;
+  border: 0;
+  font:
+    500 1em / var(--litegraph-code-line-height, 1.5) "Cascadia Code",
+    "JetBrains Mono", Consolas, "Courier New", monospace;
+  letter-spacing: 0;
+  tab-size: 4;
+  white-space: pre;
+}
+
+.litegraph-code-addon__syntax {
+  overflow: hidden;
+  color: #d6e2ff;
+  pointer-events: none;
+}
+
+.litegraph-code-addon__textarea {
+  resize: none;
+  overflow: auto;
+  background: transparent;
+  color: transparent;
+  caret-color: #f8fafc;
+  outline: none;
+}
+
+.litegraph-code-addon__textarea::selection {
+  background: rgba(96, 165, 250, 0.28);
+}
+
+.litegraph-code-addon__token--keyword {
+  color: #f472b6;
+}
+
+.litegraph-code-addon__token--builtin {
+  color: #38bdf8;
+}
+
+.litegraph-code-addon__token--constant {
+  color: #fbbf24;
+}
+
+.litegraph-code-addon__token--definition {
+  color: #34d399;
+}
+
+.litegraph-code-addon__token--decorator {
+  color: #c084fc;
+}
+
+.litegraph-code-addon__token--number {
+  color: #fb923c;
+}
+
+.litegraph-code-addon__token--operator {
+  color: #93c5fd;
+}
+
+.litegraph-code-addon__token--comment {
+  color: #64748b;
+}
+
+.litegraph-code-addon__token--string {
+  color: #86efac;
+}

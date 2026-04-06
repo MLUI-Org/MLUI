@@ -1,0 +1,18 @@
+{
+  "name": "@mlui/litegraph-addons",
+  "version": "0.1.0",
+  "private": true,
+  "description": "UI add-ons for MLUI LiteGraph canvases.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./litegraph-addons.css": "./public/css/litegraph-addons.css"
+  },
+  "dependencies": {
+    "@mlui/litegraph": "workspace:*",
+    "@mlui/litegraph-nodes": "workspace:*"
+  }
+}
